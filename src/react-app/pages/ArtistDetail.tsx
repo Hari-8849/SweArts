@@ -6,6 +6,8 @@ import ArtworkCard from '@/react-app/components/ArtworkCard';
 import { Artist, Artwork } from '@/shared/types';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Calendar } from 'lucide-react';
+import { MOCK_ARTISTS } from '@/react-app/data/mockArtists';
+import { MOCK_ARTWORKS } from '@/react-app/data/mockArtworks';
 
 export default function ArtistDetail() {
   const { id } = useParams();
@@ -14,28 +16,33 @@ export default function ArtistDetail() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchArtist = async () => {
+    const fetchArtistData = async () => {
       setLoading(true);
       try {
-        const [artistRes, artworksRes] = await Promise.all([
-          fetch(`/api/artists/${id}`),
-          fetch(`/api/artists/${id}/artworks`)
-        ]);
+        // Simulating loading time
+        await new Promise(resolve => setTimeout(resolve, 500));
 
-        const artistData = await artistRes.json();
-        const artworksData = await artworksRes.json();
+        // Find artist in local mock data
+        const localArtist = MOCK_ARTISTS.find(a => a.id === Number(id));
 
-        setArtist(artistData);
-        setArtworks(artworksData);
+        if (localArtist) {
+          setArtist(localArtist);
+
+          // Find artworks for this artist in local mock data
+          const artistArtworks = MOCK_ARTWORKS.filter(a => a.artist_id === localArtist.id);
+          setArtworks(artistArtworks);
+        } else {
+          setArtist(null);
+        }
       } catch (error) {
-        console.error('Error fetching artist:', error);
+        console.error('Error in fetchArtistData:', error);
       } finally {
         setLoading(false);
       }
     };
 
     if (id) {
-      fetchArtist();
+      fetchArtistData();
     }
   }, [id]);
 
@@ -109,7 +116,7 @@ export default function ArtistDetail() {
               <h1 className="text-4xl md:text-5xl font-serif font-bold text-neutral-900 mb-4">
                 {artist.name}
               </h1>
-              
+
               {artist.bio && (
                 <p className="text-lg text-neutral-700 mb-6 leading-relaxed max-w-3xl">
                   {artist.bio}

@@ -1,0 +1,7 @@
+INSERT OR REPLACE INTO artists (id, name, bio, profile_image_url, created_at, updated_at) VALUES 
+(1, 'Sophia Martinez', 'Contemporary artist specializing in abstract expressionism and mixed media compositions.', 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400', '2026-01-14 08:06:33', '2026-01-14 08:06:33'),
+(2, 'James Chen', 'Modern textile artist creating stunning wall hangings and textured pieces inspired by nature.', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400', '2026-01-14 08:06:33', '2026-01-14 08:06:33'),
+(3, 'Isabella Russo', 'Traditional Indian art specialist known for intricate Lippan work and handcrafted decorative mirrors.', 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400', '2026-01-14 08:06:33', '2026-01-14 08:06:33'),
+(4, 'Michael Thompson', 'Canvas artist creating bold, vibrant works that blend traditional and contemporary artistic styles.', 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400', '2026-01-14 08:06:33', '2026-01-14 08:06:33'),
+(5, 'Amara Patel', 'Mixed media artist exploring cultural heritage through handmade decor and premium art prints.', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400', '2026-01-14 08:06:33', '2026-01-14 08:06:33'),
+(6, 'Lucas Anderson', 'Abstract painter pushing boundaries with innovative compositions and advanced color theory.', 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400', '2026-01-14 08:06:33', '2026-01-14 08:06:33');

@@ -8,6 +8,7 @@ import { Heart, ShoppingCart, ZoomIn, Truck, Shield, ArrowLeft, Play, Image as I
 import { motion } from 'framer-motion';
 import { useCart } from '@/react-app/hooks/useCart';
 import { useWishlist } from '@/react-app/hooks/useWishlist';
+import { MOCK_ARTWORKS } from '@/react-app/data/mockArtworks';
 
 export default function ArtworkDetail() {
   const { id } = useParams();
@@ -18,10 +19,10 @@ export default function ArtworkDetail() {
   const [showZoom, setShowZoom] = useState(false);
   const [addingToCart, setAddingToCart] = useState(false);
   const [mediaType, setMediaType] = useState<'image' | 'video'>('image');
-  
+
   const { addToCart } = useCart();
   const { isInWishlist, addToWishlist, removeFromWishlist, items } = useWishlist();
-  
+
   const artworkId = id ? parseInt(id) : 0;
   const inWishlist = isInWishlist(artworkId);
 
@@ -50,23 +51,30 @@ export default function ArtworkDetail() {
   };
 
   useEffect(() => {
-    const fetchArtwork = async () => {
+    const fetchArtworkData = async () => {
       setLoading(true);
       try {
-        const [artworkRes, relatedRes] = await Promise.all([
-          fetch(`/api/artworks/${id}`),
-          fetch(`/api/artworks/${id}/related`)
-        ]);
+        // Simulating loading time
+        await new Promise(resolve => setTimeout(resolve, 500));
 
-        const artworkData = await artworkRes.json();
-        const relatedData = await relatedRes.json();
+        const artworkData = MOCK_ARTWORKS.find(a => a.id === artworkId);
 
-        setArtwork(artworkData);
-        setRelatedArtworks(relatedData);
-        
-        // Default to video if available
-        if (artworkData.video_url) {
-          setMediaType('video');
+        if (artworkData) {
+          setArtwork(artworkData);
+
+          // Filter related artworks by category
+          const related = MOCK_ARTWORKS.filter(
+            a => a.category === artworkData.category && a.id !== artworkData.id
+          ).slice(0, 4);
+
+          setRelatedArtworks(related);
+
+          // Default to video if available
+          if (artworkData.video_url) {
+            setMediaType('video');
+          }
+        } else {
+          setArtwork(null);
         }
       } catch (error) {
         console.error('Error fetching artwork:', error);
@@ -76,9 +84,9 @@ export default function ArtworkDetail() {
     };
 
     if (id) {
-      fetchArtwork();
+      fetchArtworkData();
     }
-  }, [id]);
+  }, [id, artworkId]);
 
   if (loading) {
     return (
@@ -173,22 +181,20 @@ export default function ArtworkDetail() {
               <div className="flex gap-3 mt-4">
                 <button
                   onClick={() => setMediaType('image')}
-                  className={`flex-1 p-3 rounded-lg border-2 transition-all flex items-center justify-center gap-2 ${
-                    mediaType === 'image'
+                  className={`flex-1 p-3 rounded-lg border-2 transition-all flex items-center justify-center gap-2 ${mediaType === 'image'
                       ? 'border-neutral-900 bg-neutral-50'
                       : 'border-neutral-200 hover:border-neutral-300'
-                  }`}
+                    }`}
                 >
                   <ImageIcon className="w-4 h-4" />
                   <span className="font-medium">Image</span>
                 </button>
                 <button
                   onClick={() => setMediaType('video')}
-                  className={`flex-1 p-3 rounded-lg border-2 transition-all flex items-center justify-center gap-2 ${
-                    mediaType === 'video'
+                  className={`flex-1 p-3 rounded-lg border-2 transition-all flex items-center justify-center gap-2 ${mediaType === 'video'
                       ? 'border-neutral-900 bg-neutral-50'
                       : 'border-neutral-200 hover:border-neutral-300'
-                  }`}
+                    }`}
                 >
                   <Play className="w-4 h-4" />
                   <span className="font-medium">Video</span>
@@ -201,9 +207,8 @@ export default function ArtworkDetail() {
               <div className="grid grid-cols-2 gap-3 mt-3">
                 <button
                   onClick={() => setMediaType('image')}
-                  className={`relative rounded-lg overflow-hidden aspect-square border-2 transition-all ${
-                    mediaType === 'image' ? 'border-neutral-900' : 'border-neutral-200 hover:border-neutral-300'
-                  }`}
+                  className={`relative rounded-lg overflow-hidden aspect-square border-2 transition-all ${mediaType === 'image' ? 'border-neutral-900' : 'border-neutral-200 hover:border-neutral-300'
+                    }`}
                 >
                   <img
                     src={artwork.image_url}
@@ -213,9 +218,8 @@ export default function ArtworkDetail() {
                 </button>
                 <button
                   onClick={() => setMediaType('video')}
-                  className={`relative rounded-lg overflow-hidden aspect-square border-2 transition-all ${
-                    mediaType === 'video' ? 'border-neutral-900' : 'border-neutral-200 hover:border-neutral-300'
-                  }`}
+                  className={`relative rounded-lg overflow-hidden aspect-square border-2 transition-all ${mediaType === 'video' ? 'border-neutral-900' : 'border-neutral-200 hover:border-neutral-300'
+                    }`}
                 >
                   <img
                     src={artwork.image_url}
@@ -303,7 +307,7 @@ export default function ArtworkDetail() {
 
             {/* Actions */}
             <div className="flex gap-3 mb-8">
-              <button 
+              <button
                 onClick={handleAddToCart}
                 disabled={addingToCart}
                 className="flex-1 btn-primary inline-flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
@@ -311,7 +315,7 @@ export default function ArtworkDetail() {
                 <ShoppingCart className="w-5 h-5 mr-2" />
                 {addingToCart ? 'Adding...' : 'Add to Cart'}
               </button>
-              <button 
+              <button
                 onClick={handleWishlistToggle}
                 className="p-3 border border-neutral-300 rounded-md hover:bg-neutral-50 transition-colors"
               >

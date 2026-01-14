@@ -7,6 +7,7 @@ import CategoryCard from '@/react-app/components/CategoryCard';
 import { Artwork, CATEGORIES } from '@/shared/types';
 import { Link } from 'react-router';
 import { ArrowRight } from 'lucide-react';
+import { MOCK_ARTWORKS } from '@/react-app/data/mockArtworks';
 
 export default function Home() {
   const [featuredArtworks, setFeaturedArtworks] = useState<Artwork[]>([]);
@@ -17,17 +18,13 @@ export default function Home() {
   useEffect(() => {
     const fetchArtworks = async () => {
       try {
-        const [featuredRes, trendingRes, bestsellerRes] = await Promise.all([
-          fetch('/api/artworks?featured=1&limit=4'),
-          fetch('/api/artworks?trending=1&limit=6'),
-          fetch('/api/artworks?bestseller=1&limit=4')
-        ]);
+        // Simulating loading for a smooth experience
+        await new Promise(resolve => setTimeout(resolve, 600));
 
-        const [featured, trending, bestseller] = await Promise.all([
-          featuredRes.json(),
-          trendingRes.json(),
-          bestsellerRes.json()
-        ]);
+        // Use local mock data
+        const featured = MOCK_ARTWORKS.filter(a => a.is_featured === 1).slice(0, 4);
+        const trending = MOCK_ARTWORKS.filter(a => a.is_trending === 1).slice(0, 6);
+        const bestseller = MOCK_ARTWORKS.filter(a => a.is_bestseller === 1).slice(0, 4);
 
         setFeaturedArtworks(featured);
         setTrendingArtworks(trending);
@@ -219,7 +216,7 @@ export default function Home() {
             Stay Inspired
           </h2>
           <p className="text-neutral-300 max-w-2xl mx-auto mb-8">
-            Subscribe to our newsletter for exclusive collections, artist spotlights, 
+            Subscribe to our newsletter for exclusive collections, artist spotlights,
             and special offers delivered to your inbox.
           </p>
           <form className="max-w-md mx-auto flex gap-3">

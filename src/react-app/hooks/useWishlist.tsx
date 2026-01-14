@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { MOCK_ARTWORKS } from '@/react-app/data/mockArtworks';
 
 interface WishlistItem {
   id: number;
@@ -21,83 +22,53 @@ interface WishlistContextType {
 
 const WishlistContext = createContext<WishlistContextType | undefined>(undefined);
 
+const LOCAL_STORAGE_KEY = 'swearts_wishlist_items';
+
 export function WishlistProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<WishlistItem[]>([]);
-  const [sessionId, setSessionId] = useState<string>('');
 
-  const refreshWishlist = async () => {
-    try {
-      const headers: HeadersInit = {};
-      if (sessionId) {
-        headers['x-session-id'] = sessionId;
-      }
-
-      const response = await fetch('/api/wishlist', { headers });
-      const newSessionId = response.headers.get('x-session-id');
-      if (newSessionId) {
-        setSessionId(newSessionId);
-        localStorage.setItem('sessionId', newSessionId);
-      }
-
-      const data = await response.json();
-      setItems(data);
-    } catch (error) {
-      console.error('Error fetching wishlist:', error);
-    }
-  };
-
+  // Load from localStorage on mount
   useEffect(() => {
-    const storedSessionId = localStorage.getItem('sessionId');
-    if (storedSessionId) {
-      setSessionId(storedSessionId);
+    const storedItems = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (storedItems) {
+      try {
+        setItems(JSON.parse(storedItems));
+      } catch (e) {
+        console.error('Error parsing wishlist items from storage:', e);
+      }
     }
-    refreshWishlist();
   }, []);
 
+  // Sync with localStorage on changes
+  useEffect(() => {
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(items));
+  }, [items]);
+
+  const refreshWishlist = async () => {
+    // No-op for local implementation
+  };
+
   const addToWishlist = async (artworkId: number) => {
-    try {
-      const headers: HeadersInit = {
-        'Content-Type': 'application/json',
-      };
-      if (sessionId) {
-        headers['x-session-id'] = sessionId;
-      }
+    if (isInWishlist(artworkId)) return;
 
-      const response = await fetch('/api/wishlist', {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({ artwork_id: artworkId })
-      });
+    const artwork = MOCK_ARTWORKS.find(a => a.id === artworkId);
+    if (!artwork) return;
 
-      const newSessionId = response.headers.get('x-session-id');
-      if (newSessionId) {
-        setSessionId(newSessionId);
-        localStorage.setItem('sessionId', newSessionId);
-      }
+    const newItem: WishlistItem = {
+      id: Date.now(), // Generate a simple local ID
+      artwork_id: artworkId,
+      title: artwork.title,
+      image_url: artwork.image_url,
+      price: artwork.price,
+      category: artwork.category,
+      artist_name: artwork.artist_name || 'Unknown Artist'
+    };
 
-      await refreshWishlist();
-    } catch (error) {
-      console.error('Error adding to wishlist:', error);
-      throw error;
-    }
+    setItems(prevItems => [...prevItems, newItem]);
   };
 
   const removeFromWishlist = async (itemId: number) => {
-    try {
-      const headers: HeadersInit = {};
-      if (sessionId) {
-        headers['x-session-id'] = sessionId;
-      }
-
-      await fetch(`/api/wishlist/${itemId}`, {
-        method: 'DELETE',
-        headers
-      });
-      await refreshWishlist();
-    } catch (error) {
-      console.error('Error removing from wishlist:', error);
-      throw error;
-    }
+    setItems(prevItems => prevItems.filter(item => item.id !== itemId && item.artwork_id !== itemId));
   };
 
   const isInWishlist = (artworkId: number) => {

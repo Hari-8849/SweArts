@@ -5,6 +5,7 @@ import Footer from '@/react-app/components/Footer';
 import ArtworkCard from '@/react-app/components/ArtworkCard';
 import { Artwork, CATEGORIES } from '@/shared/types';
 import { SlidersHorizontal } from 'lucide-react';
+import { MOCK_ARTWORKS } from '@/react-app/data/mockArtworks';
 
 export default function Shop() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -22,13 +23,15 @@ export default function Shop() {
     const fetchArtworks = async () => {
       setLoading(true);
       try {
-        const params = new URLSearchParams();
-        if (selectedCategory) params.append('category', selectedCategory);
-        
-        const response = await fetch(`/api/artworks?${params}`);
-        let data = await response.json();
+        // Simulating loading time
+        await new Promise(resolve => setTimeout(resolve, 500));
 
-        // Apply client-side filters
+        let data = [...MOCK_ARTWORKS];
+
+        // Apply filters locally
+        if (selectedCategory) {
+          data = data.filter((a: Artwork) => a.category === selectedCategory);
+        }
         if (minPrice) {
           data = data.filter((a: Artwork) => a.price >= parseFloat(minPrice));
         }
@@ -46,6 +49,8 @@ export default function Shop() {
           data.sort((a: Artwork, b: Artwork) => b.price - a.price);
         } else if (sortBy === 'popular') {
           data.sort((a: Artwork, b: Artwork) => (b.is_featured + b.is_trending) - (a.is_featured + a.is_trending));
+        } else if (sortBy === 'newest') {
+          data.sort((a: Artwork, b: Artwork) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
         }
 
         setArtworks(data);

@@ -5,6 +5,8 @@ import ArtistCard from '@/react-app/components/ArtistCard';
 import { Artist } from '@/shared/types';
 import { motion } from 'framer-motion';
 import { Palette } from 'lucide-react';
+import { MOCK_ARTISTS } from '@/react-app/data/mockArtists';
+import { MOCK_ARTWORKS } from '@/react-app/data/mockArtworks';
 
 interface ArtistWithCount extends Artist {
   artwork_count?: number;
@@ -15,23 +17,18 @@ export default function Artists() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Use local mock data instead of API fetch
     const fetchArtists = async () => {
       try {
-        const response = await fetch('/api/artists');
-        const data = await response.json();
-        
-        // Fetch artwork count for each artist
-        const artistsWithCounts = await Promise.all(
-          data.map(async (artist: Artist) => {
-            const artworksRes = await fetch(`/api/artists/${artist.id}/artworks`);
-            const artworks = await artworksRes.json();
-            return {
-              ...artist,
-              artwork_count: artworks.length
-            };
-          })
-        );
-        
+        // Simulating some loading time for realistic feel
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        // Calculate artwork counts from local mock artworks
+        const artistsWithCounts = MOCK_ARTISTS.map(artist => ({
+          ...artist,
+          artwork_count: MOCK_ARTWORKS.filter(a => a.artist_id === artist.id).length
+        }));
+
         setArtists(artistsWithCounts);
       } catch (error) {
         console.error('Error fetching artists:', error);
@@ -65,7 +62,7 @@ export default function Artists() {
               Meet Our Artists
             </h1>
             <p className="text-lg md:text-xl text-neutral-600">
-              Discover the talented creators behind our curated collection. 
+              Discover the talented creators behind our curated collection.
               Each artist brings their unique vision and craftsmanship to create exceptional pieces.
             </p>
           </motion.div>
